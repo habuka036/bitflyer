@@ -32,14 +32,15 @@ type childOrderAcceptanceID struct {
 	ChildOrderAcceptanceID string `json:"child_order_acceptance_id"`
 }
 
-func (p *PrivateAPIClient) CreateOrder(side string, price, size float64, typ string) (string, error) {
+func (p *PrivateAPIClient) CreateOrder(product_code string, child_order_type string, side string, price, size float64, time_in_force string) (string, error) {
 	res := childOrderAcceptanceID{}
 	if err := p.post("/v1/me/sendchildorder", &sendChildOrderParams{
-		ProductCode:    "FX_BTC_JPY",
-		ChildOrderType: typ,
+		ProductCode:    product_code,
+		ChildOrderType: child_order_type,
 		Side:           side,
 		Price:          price,
 		Size:           size,
+		TimeInForce:    time_in_force,
 	}, &res); err != nil {
 		return "", err
 	}
@@ -63,6 +64,24 @@ func (p *PrivateAPIClient) CancelAllOrder() error {
 	return p.post("/v1/me/cancelallchildorders", &cancelChildOrderParams{
 		ProductCode: "FX_BTC_JPY",
 	}, nil)
+}
+
+type Balance struct {
+	CurrencyCode string `json:"currency_code"`
+	Amount float64 `json:"amount"`
+	Available float64 `json:"available"`
+}
+
+func (p *PrivateAPIClient) GetBalance() ([]*Balance, error) {
+	balances := []*Balance{}
+	err := p.get("/v1/me/getbalance", nil, &balances)
+	if err != nil {
+		return nil, err
+	}
+	if len(balances) == 0 {
+		return nil, fmt.Errorf("%w; cannot retrieve balances", ErrInvalidResponse)
+	}
+	return balances, nil
 }
 
 type Order struct {
