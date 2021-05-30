@@ -32,14 +32,15 @@ type childOrderAcceptanceID struct {
 	ChildOrderAcceptanceID string `json:"child_order_acceptance_id"`
 }
 
-func (p *PrivateAPIClient) CreateOrder(side string, price, size float64, typ string) (string, error) {
+func (p *PrivateAPIClient) CreateOrder(product_code string, child_order_type string, side string, price, size float64, time_in_force string) (string, error) {
 	res := childOrderAcceptanceID{}
 	if err := p.post("/v1/me/sendchildorder", &sendChildOrderParams{
-		ProductCode:    "FX_BTC_JPY",
-		ChildOrderType: typ,
+		ProductCode:    product_code,
+		ChildOrderType: child_order_type,
 		Side:           side,
 		Price:          price,
 		Size:           size,
+		TimeInForce:    time_in_force,
 	}, &res); err != nil {
 		return "", err
 	}
