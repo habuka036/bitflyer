@@ -66,6 +66,24 @@ func (p *PrivateAPIClient) CancelAllOrder() error {
 	}, nil)
 }
 
+type Balance struct {
+	CurrencyCode string `json:"currency_code"`
+	Amount float64 `json:"amount"`
+	Available float64 `json:"available"`
+}
+
+func (p *PrivateAPIClient) GetBalance() ([]*Balance, error) {
+	balances := []*Balance{}
+	err := p.get("/v1/me/getbalance", nil, &balances)
+	if err != nil {
+		return nil, err
+	}
+	if len(balances) == 0 {
+		return nil, fmt.Errorf("%w; cannot retrieve balances", ErrInvalidResponse)
+	}
+	return balances, nil
+}
+
 type Order struct {
 	ID                     int64   `json:"id"`
 	ChildOrderID           string  `json:"child_order_id"`

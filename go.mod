@@ -1,4 +1,4 @@
-module github.com/sodefrin/bitflyer
+module github.com/habuka036/bitflyer
 
 go 1.13
 
