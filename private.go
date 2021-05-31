@@ -103,9 +103,22 @@ type Order struct {
 	TotalCommission        float64 `json:"total_commission"`
 }
 
-func (p *PrivateAPIClient) GetOrder(id string, product_code string) ([]*Order, error) {
+func (p *PrivateAPIClient) GetOrder(id string, product_code string) (*Order, error) {
 	orders := []*Order{}
 	err := p.get("/v1/me/getchildorders", map[string]string{"product_code": product_code, "child_order_acceptance_id": id}, &orders)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(orders) == 0 {
+		return nil, fmt.Errorf("%w; order is not gound", ErrInvalidResponse)
+	}
+	return orders[0], nil
+}
+
+func (p *PrivateAPIClient) GetActiveOrders(product_code string) ([]*Order, error) {
+	orders := []*Order{}
+	err := p.get("/v1/me/getchildorders", map[string]string{"product_code": product_code, "child_order_state": "ACTIVE"}, &orders)
 	if err != nil {
 		return nil, err
 	}
