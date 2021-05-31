@@ -129,6 +129,19 @@ func (p *PrivateAPIClient) GetActiveOrders(product_code string) ([]*Order, error
 	return orders, nil
 }
 
+func (p *PrivateAPIClient) GetOrders(product_code string) ([]*Order, error) {
+	orders := []*Order{}
+	err := p.get("/v1/me/getchildorders", map[string]string{"product_code": product_code}, &orders)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(orders) == 0 {
+		return nil, fmt.Errorf("%w; order is not gound", ErrInvalidResponse)
+	}
+	return orders, nil
+}
+
 type Position struct {
 	Side  string  `json:"side"`
 	Price float64 `json:"price"`
